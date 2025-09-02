@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  web-build:
+    name: Build web
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Run only if web changed
+        id: paths
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            web:
+              - 'web/**'
+      - if: steps.paths.outputs.web == 'true'
+        run: npm ci
+      - if: steps.paths.outputs.web == 'true'
+        run: npm run build
+
+  api-syntax:
+    name: Check API syntax
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: api } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run only if api changed
+        id: paths
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            api:
+              - 'api/**'
+      - if: steps.paths.outputs.api == 'true'
+        run: pipx install poetry
+      - if: steps.paths.outputs.api == 'true'
+        run: poetry install --no-interaction --no-root
+      - if: steps.paths.outputs.api == 'true'
+        run: python -m py_compile $(git ls-files '*.py')
