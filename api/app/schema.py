@@ -43,12 +43,33 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    def create_application(self, input: ApplicationInput) -> Application:
+    def createApplication(self, input: ApplicationInput) -> ApplicationType:
         db: Session = next(get_db())
-        a = models.Application(company=input.company, role=input.role)
-        db.add(a)
+        app = models.Application(company=input.company, role=input.role)
+        db.add(app)
         db.commit()
-        db.refresh(a)
-        return app_to_gql(a)
+        db.refresh(app)
+        return app
+
+    @strawberry.mutation
+    def updateStatus(self, id: int, status: Status) -> ApplicationType | None:
+        db: Session = next(get_db())
+        app = db.get(models.Application, id)
+        if not app:
+            return None
+        app.current_status = status.value  # if Status is strawberry.enum
+        db.commit()
+        db.refresh(app)
+        return app
+
+    @strawberry.mutation
+    def delete_application(self, id: int) -> bool:
+        db: Session = next(get_db())
+        app = db.get(models.Application, id)
+        if not app:
+            return False
+        db.delete(app)
+        db.commit()
+        return True
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

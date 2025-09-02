@@ -10,3 +10,18 @@ export const CREATE_APPLICATION = gql`
     }
   }
 `;
+
+export const UPDATE_STATUS = gql`
+  mutation ($id: Int!, $status: Status!) {
+    updateStatus(id: $id, status: $status) {
+      id
+      currentStatus
+    }
+  }
+`;
+
+export const DELETE_APPLICATION = gql`
+  mutation ($id: Int!) {
+    delete_application(id: $id)
+  }
+`;
