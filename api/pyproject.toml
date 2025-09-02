@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "jobtracker-api"
+version = "0.1.0"
+packages = [{ include = "app" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "0.95.2"         
+pydantic = "<2"
+strawberry-graphql = "0.205.0"
+uvicorn = "0.22.0"
+SQLAlchemy = "^2.0.0"
+pymysql = "^1.1.1"
+alembic = "^1.13.2"

@@ -1,0 +1,12 @@
+# Node
+web/node_modules
+web/dist
+
+# Python
+__pycache__/
+*.pyc
+.venv
+api/.venv
+
+# OS
+.DS_Store
