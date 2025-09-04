@@ -1,7 +1,8 @@
+// src/graphql/mutations.js
 import { gql } from "@apollo/client";
 
 export const CREATE_APPLICATION = gql`
-  mutation ($input: ApplicationInput!) {
+  mutation CreateApplication($input: ApplicationInput!) {
     createApplication(input: $input) {
       id
       company
@@ -11,9 +12,9 @@ export const CREATE_APPLICATION = gql`
   }
 `;
 
-export const UPDATE_STATUS = gql`
-  mutation ($id: Int!, $status: Status!) {
-    updateStatus(id: $id, status: $status) {
+export const UPDATE_APPLICATION_STATUS = gql`
+  mutation UpdateStatus($id: Int!, $status: Status!) {
+    updateApplicationStatus(id: $id, status: $status) {
       id
       currentStatus
     }
@@ -21,7 +22,7 @@ export const UPDATE_STATUS = gql`
 `;
 
 export const DELETE_APPLICATION = gql`
-  mutation ($id: Int!) {
-    delete_application(id: $id)
+  mutation DeleteApplication($id: Int!) {
+    deleteApplication(id: $id)
   }
 `;

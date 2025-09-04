@@ -1,75 +1,92 @@
+# api/app/schema.py
 import strawberry
-from typing import List
-from datetime import datetime
+from typing import List, Optional
 from sqlalchemy.orm import Session
-from .db import get_db
+
+from .db import SessionLocal
 from . import models
 
-# ✅ Wrap the existing Python Enum instead of subclassing it
+# 1) Expose the Python Enum as a GraphQL Enum
 Status = strawberry.enum(models.StatusEnum, name="Status")
 
+# 2) GraphQL types (camelCase field for current status)
 @strawberry.type
-class Application:
+class ApplicationType:
     id: int
     company: str
     role: str
-    current_status: Status
-    created_at: datetime
-    updated_at: datetime
+    currentStatus: Status
 
 @strawberry.input
 class ApplicationInput:
     company: str
     role: str
 
-def app_to_gql(a: models.Application) -> Application:
-    return Application(
-        id=a.id,
-        company=a.company,
-        role=a.role,
-        current_status=a.current_status,
-        created_at=a.created_at,
-        updated_at=a.updated_at,
+# 3) Resolvers
+def _to_gql(app: models.Application) -> ApplicationType:
+    return ApplicationType(
+        id=app.id,
+        company=app.company,
+        role=app.role,
+        currentStatus=app.current_status,
     )
 
 @strawberry.type
 class Query:
+    applications: List[ApplicationType]
+
     @strawberry.field
-    def applications(self) -> List[Application]:
-        db: Session = next(get_db())
-        rows = db.query(models.Application).order_by(models.Application.created_at.desc()).all()
-        return [app_to_gql(a) for a in rows]
+    def applications(self) -> List[ApplicationType]:
+        session: Session = SessionLocal()
+        try:
+            rows = session.query(models.Application).order_by(models.Application.id.asc()).all()
+            return [_to_gql(r) for r in rows]
+        finally:
+            session.close()
 
 @strawberry.type
 class Mutation:
     @strawberry.mutation
     def createApplication(self, input: ApplicationInput) -> ApplicationType:
-        db: Session = next(get_db())
-        app = models.Application(company=input.company, role=input.role)
-        db.add(app)
-        db.commit()
-        db.refresh(app)
-        return app
+        session: Session = SessionLocal()
+        try:
+            app = models.Application(
+                company=input.company,
+                role=input.role,
+                current_status=models.StatusEnum.SAVED,
+            )
+            session.add(app)
+            session.commit()
+            session.refresh(app)
+            return _to_gql(app)
+        finally:
+            session.close()
 
     @strawberry.mutation
-    def updateStatus(self, id: int, status: Status) -> ApplicationType | None:
-        db: Session = next(get_db())
-        app = db.get(models.Application, id)
-        if not app:
-            return None
-        app.current_status = status.value  # if Status is strawberry.enum
-        db.commit()
-        db.refresh(app)
-        return app
+    def updateApplicationStatus(self, id: int, status: Status) -> ApplicationType:
+        session: Session = SessionLocal()
+        try:
+            app = session.query(models.Application).filter(models.Application.id == id).first()
+            if not app:
+                raise Exception("Application not found")
+            app.current_status = status
+            session.commit()
+            session.refresh(app)
+            return _to_gql(app)
+        finally:
+            session.close()
 
     @strawberry.mutation
-    def delete_application(self, id: int) -> bool:
-        db: Session = next(get_db())
-        app = db.get(models.Application, id)
-        if not app:
-            return False
-        db.delete(app)
-        db.commit()
-        return True
+    def deleteApplication(self, id: int) -> bool:
+        session: Session = SessionLocal()
+        try:
+            app = session.query(models.Application).filter(models.Application.id == id).first()
+            if not app:
+                return False
+            session.delete(app)
+            session.commit()
+            return True
+        finally:
+            session.close()
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
