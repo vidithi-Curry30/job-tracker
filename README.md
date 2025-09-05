@@ -32,3 +32,17 @@ A full-stack job application tracker to organize and monitor applications throug
 ```bash
 cd job-tracker/api
 docker compose up --build
+
+📸 Frontend Screenshots
+
+### Dashboard
+![Frontend Dashboard](docs/frontend/Frontend%20Dashboard.png)
+
+### Add Application
+![Frontend Add](docs/frontend/Frontend%20Add.png)
+
+### Delete Application
+![Frontend Delete](docs/frontend/Frontend%20Delete.png)
+
+### Reject Application
+![Frontend Reject](docs/frontend/Frontend%20Reject.png)
