@@ -43,8 +43,8 @@ docker compose up --build
 ### Add Application
 ![Frontend Add](docs/frontend/Frontend%20Add.png)
 
-### Delete Application
-![Frontend Delete](docs/frontend/Frontend%20Delete.png)
-
 ### Reject Application
 ![Frontend Reject](docs/frontend/Frontend%20Reject.png)
+
+### Delete Application
+![Frontend Delete](docs/frontend/Frontend%20Delete.png)
