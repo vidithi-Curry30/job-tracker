@@ -32,7 +32,7 @@ A full-stack job application tracker to organize and monitor applications throug
 ```bash
 cd job-tracker/api
 docker compose up --build
-
+```
 ---
 
 ## 📸 Frontend Screenshots
