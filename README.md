@@ -48,3 +48,26 @@ docker compose up --build
 
 ### Delete Application
 ![Frontend Delete](docs/frontend/Frontend%20Delete.png)
+
+## 🛠 Backend Highlights
+
+- **FastAPI + Strawberry GraphQL** server providing a clean schema-based API.  
+- **PostgreSQL database** with Dockerized persistence for reliable storage.  
+- **GraphQL mutations** to add, update, and delete job applications.  
+- **Enum-based statuses** (`SAVED`, `APPLIED`, `REJECTED`) for consistent state management.  
+- **Docker Compose** setup for running API + DB with one command.  
+- Hot-reloading enabled for rapid backend development.  
+
+### Example: Create a Job Application
+```graphql
+mutation {
+  createApplication(input: {
+    company: "Google"
+    role: "Software Engineering Intern"
+  }) {
+    id
+    company
+    role
+    currentStatus
+  }
+}
